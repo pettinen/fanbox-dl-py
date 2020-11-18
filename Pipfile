@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
-click = "*"
+fanbox-dl = {editable = true, path = "."}
 
 [dev-packages]
 

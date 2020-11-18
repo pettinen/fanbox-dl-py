@@ -11,6 +11,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        fanbox_dl=fanbox_dl:main
+        fanbox-dl=fanbox_dl:main
     '''
 )
