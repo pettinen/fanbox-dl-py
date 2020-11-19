@@ -1,15 +1,12 @@
 import toml
-from pprint import pprint
 
+
+license = 'MIT'
 
 with open('pyproject.toml') as f:
     metadata = toml.load(f)['project']
 
-license = 'MIT'
-
-setup_cfg_parts = []
-
-setup_cfg_parts.append(f"""\
+setup_cfg_parts = [f"""\
 [metadata]
 name = {metadata['name']}
 version = {metadata['version']}
@@ -23,7 +20,7 @@ url = {metadata['urls']['repository']}
 [options]
 packages = fanbox_dl
 install_requires =
-""")
+"""]
 
 for dep in metadata['dependencies']:
     setup_cfg_parts.append(f"    {dep}\n")
