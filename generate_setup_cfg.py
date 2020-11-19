@@ -7,6 +7,9 @@ with open('pyproject.toml') as f:
     metadata = toml.load(f)['project']
 
 setup_cfg_parts = [f"""\
+# This file was automatically generated from pyproject.toml by generate_setup_cfg.py.
+# You should not edit it manually.
+
 [metadata]
 name = {metadata['name']}
 version = {metadata['version']}
