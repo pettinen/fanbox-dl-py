@@ -1,0 +1,25 @@
+[project]
+name = "fanbox-dl"
+version = "0.1.0"
+description = "A Fanbox downloader."
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Jeremias Pettinen", email = "hi@jeremi.as"}
+]
+
+dependencies = [
+  "click",
+  "requests"
+]
+
+[project.urls]
+repository = "https://github.com/pettinen/fanbox-dl"
+
+[project.scripts]
+fanbox-dl = "fanbox_dl:main"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
