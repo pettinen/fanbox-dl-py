@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import json
-import logging
 import os
+import sys
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urlsplit
 
@@ -10,7 +10,7 @@ import click
 import requests
 
 
-def download(url, dest_dir, session_id):
+def download(url, dest_dir, clobber, session_id):
     fullpath = unquote(urlsplit(url).path)
     filename = PurePosixPath(fullpath).name
     try:
@@ -19,8 +19,9 @@ def download(url, dest_dir, session_id):
         pass
     req = get(url, session_id)
     file = Path(dest_dir, filename)
-    with open(file, 'wb') as f:
-        f.write(req.content)
+    if clobber or not file.exists():
+        with open(file, 'wb') as f:
+            f.write(req.content)
 
 
 def get(url, session_id):
@@ -60,32 +61,46 @@ def get_posts(creator, session_id):
     if 'body' not in data or 'items' not in data['body']:
         return
     if 'nextUrl' in data['body'] and data['body']['nextUrl'] is not None:
-        logging.warning(f"Only the first {limit} posts in the fanbox are downloaded.")
+        print(f"Warning: Only the {limit} newest posts in the fanbox are downloaded.", file=sys.stderr)
     return data['body']['items']
 
 
 @click.command()
 @click.option('-c', '--cookie-file', required=True)
-@click.option('-o', '--output', default='.')
+@click.option('-o', '--output', default='.', show_default=True)
+@click.option('--clobber/--no-clobber', default=False, show_default=True)
 @click.argument('creator')
-def main(cookie_file, output, creator):
+def main(cookie_file, output, clobber, creator):
     with open(cookie_file) as f:
         session_id = f.read().strip()
 
     posts = get_posts(creator, session_id)
-    for post in posts:
+    if posts is None:
+        print(f"Error: Couldn't fetch posts of {creator}", file=sys.stderr)
+        sys.exit(1)
+
+    posts_len = len(posts)
+    for i, post in enumerate(posts):
+        print(f"Fetching post {post['id']} ({i + 1}/{posts_len})", file=sys.stderr)
         data = get_post(post['id'], session_id)
+        if data is None:
+            print(f"Warning: Couldn't fetch post {post['id']}", file=sys.stderr)
+            continue
+
         dest_dir = Path(output, post['id'])
         try:
             os.mkdir(dest_dir)
         except FileExistsError:
             pass
-        with open(dest_dir / 'metadata.json', 'w') as f:
-            json.dump(data, f)
+
+        metadata_path = dest_dir / 'metadata.json'
+        if clobber or not metadata_path.exists():
+            with open(metadata_path, 'w') as f:
+                json.dump(data, f)
 
         if 'images' in data['body']:
             for image in data['body']['images']:
-                download(image['originalUrl'], dest_dir, session_id)
+                download(image['originalUrl'], dest_dir, clobber, session_id)
         if 'files' in data['body']:
             for file in data['body']['files']:
-                download(file['url'], dest_dir, session_id)
+                download(file['url'], dest_dir, clobber, session_id)
