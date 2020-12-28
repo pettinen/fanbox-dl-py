@@ -11,10 +11,7 @@ import requests
 def download(url, dest_dir, clobber, session_id):
     fullpath = unquote(urlsplit(url).path)
     filename = PurePosixPath(fullpath).name
-    try:
-        os.mkdir(dest_dir)
-    except FileExistsError:
-        pass
+
     req = get(url, session_id)
     file = Path(dest_dir, filename)
     if clobber or not file.exists():
