@@ -39,9 +39,9 @@ def get_post(post_id, session_id):
     try:
         data = req.json()
     except ValueError:
-        return
+        return None
     if 'body' not in data:
-        return
+        return None
     return data['body']
 
 
@@ -55,9 +55,9 @@ def get_posts(creator, session_id):
     try:
         data = req.json()
     except ValueError:
-        return
+        return None
     if 'body' not in data or 'items' not in data['body']:
-        return
+        return None
     if 'nextUrl' in data['body'] and data['body']['nextUrl'] is not None:
         print(f"Warning: Only the {limit} newest posts in the fanbox are downloaded.", file=sys.stderr)
     return data['body']['items']
