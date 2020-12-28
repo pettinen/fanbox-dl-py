@@ -78,7 +78,7 @@ def main(cookie_file, output, clobber, creator):
     for i, post in enumerate(posts):
         print(f"Fetching post {post['id']} ({i + 1}/{posts_len})", file=sys.stderr)
         data = get_post(post['id'], session_id)
-        if data is None:
+        if data is None or 'body' not in data or not data['body']:
             print(f"Warning: Couldn't fetch post {post['id']}", file=sys.stderr)
             continue
 
