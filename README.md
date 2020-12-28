@@ -1,5 +1,12 @@
 # fanbox-dl
 
+Installation with [`pipenv`](https://pipenv.pypa.io/en/latest/):
+```
+cd fanbox-dl/
+pipenv install
+pipenv run fanbox-dl --help
+```
+
 Usage (aka stuff you'd know if you had run `fanbox-dl --help`):
 * You'll need to save the value of your FANBOXSESSID cookie in a text file somewhere. Point to that file with the `-c` option when executing the script.
 * You can use the `-o` option to set the output directory.
