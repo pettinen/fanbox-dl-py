@@ -2,33 +2,34 @@ import json
 import os
 import sys
 from pathlib import Path, PurePosixPath
+from typing import Any, Optional
 from urllib.parse import unquote, urlsplit
 
 import click
 import requests
 
 
-def download(url, dest_dir, clobber, session_id):
+def download(url: str, dest_dir: Path, clobber: bool, session_id: str) -> None:
     fullpath = unquote(urlsplit(url).path)
     filename = PurePosixPath(fullpath).name
 
     req = get(url, session_id)
     file = Path(dest_dir, filename)
     if clobber or not file.exists():
-        with open(file, 'wb') as f:
+        with open(file, "wb") as f:
             f.write(req.content)
 
 
-def get(url, session_id):
+def get(url: str, session_id: str) -> requests.Response:
     return requests.get(
         url,
-        cookies={'FANBOXSESSID': session_id},
-        headers={'Origin': 'https://fanbox.cc'}
+        cookies={"FANBOXSESSID": session_id},
+        headers={"Origin": "https://fanbox.cc"},
     )
 
 
-def get_post(post_id, session_id):
-    url = f'https://api.fanbox.cc/post.info?postId={post_id}'
+def get_post(post_id: str, session_id: str) -> Any:
+    url = f"https://api.fanbox.cc/post.info?postId={post_id}"
 
     req = get(url, session_id)
     req.raise_for_status()
@@ -37,14 +38,14 @@ def get_post(post_id, session_id):
         data = req.json()
     except ValueError:
         return None
-    if 'body' not in data:
+    if "body" not in data:
         return None
-    return data['body']
+    return data["body"]
 
 
-def get_posts(creator, session_id):
+def get_posts(creator: str, session_id: str) -> Any:
     limit = 300
-    url = f'https://api.fanbox.cc/post.listCreator?creatorId={creator}&limit={limit}'
+    url = f"https://api.fanbox.cc/post.listCreator?creatorId={creator}&limit={limit}"
 
     req = get(url, session_id)
     req.raise_for_status()
@@ -53,19 +54,22 @@ def get_posts(creator, session_id):
         data = req.json()
     except ValueError:
         return None
-    if 'body' not in data or 'items' not in data['body']:
+    if "body" not in data or "items" not in data["body"]:
         return None
-    if 'nextUrl' in data['body'] and data['body']['nextUrl'] is not None:
-        print(f"Warning: Only the {limit} newest posts in the fanbox are downloaded.", file=sys.stderr)
-    return data['body']['items']
+    if "nextUrl" in data["body"] and data["body"]["nextUrl"] is not None:
+        print(
+            f"Warning: Only the {limit} newest posts in the fanbox are downloaded.",
+            file=sys.stderr,
+        )
+    return data["body"]["items"]
 
 
 @click.command()
-@click.option('-c', '--cookie-file', required=True)
-@click.option('-o', '--output', default='.', show_default=True)
-@click.option('--clobber/--no-clobber', default=False, show_default=True)
-@click.argument('creator')
-def main(cookie_file, output, clobber, creator):
+@click.option("-c", "--cookie-file", required=True)
+@click.option("-o", "--output", default=".", show_default=True)
+@click.option("--clobber/--no-clobber", default=False, show_default=True)
+@click.argument("creator")
+def main(cookie_file: str, output: str, clobber: bool, creator: str) -> None:
     with open(cookie_file) as f:
         session_id = f.read().strip()
 
@@ -77,25 +81,25 @@ def main(cookie_file, output, clobber, creator):
     posts_len = len(posts)
     for i, post in enumerate(posts):
         print(f"Fetching post {post['id']} ({i + 1}/{posts_len})", file=sys.stderr)
-        data = get_post(post['id'], session_id)
-        if data is None or 'body' not in data or not data['body']:
+        data = get_post(post["id"], session_id)
+        if data is None or "body" not in data or not data["body"]:
             print(f"Warning: Couldn't fetch post {post['id']}", file=sys.stderr)
             continue
 
-        dest_dir = Path(output, post['id'])
+        dest_dir = Path(output, post["id"])
         try:
             os.mkdir(dest_dir)
         except FileExistsError:
             pass
 
-        metadata_path = dest_dir / 'metadata.json'
+        metadata_path = dest_dir / "metadata.json"
         if clobber or not metadata_path.exists():
-            with open(metadata_path, 'w') as f:
+            with open(metadata_path, "w") as f:
                 json.dump(data, f)
 
-        if 'images' in data['body']:
-            for image in data['body']['images']:
-                download(image['originalUrl'], dest_dir, clobber, session_id)
-        if 'files' in data['body']:
-            for file in data['body']['files']:
-                download(file['url'], dest_dir, clobber, session_id)
+        if "images" in data["body"]:
+            for image in data["body"]["images"]:
+                download(image["originalUrl"], dest_dir, clobber, session_id)
+        if "files" in data["body"]:
+            for file in data["body"]["files"]:
+                download(file["url"], dest_dir, clobber, session_id)
