@@ -1,17 +1,17 @@
 [project]
 name = "fanbox-dl"
-version = "0.2.0"
+version = "1.0.0"
 description = "A Fanbox downloader."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = "~=3.8"
 license = {file = "LICENSE"}
 authors = [
   {name = "Jeremias Pettinen", email = "hi@jeremi.as"}
 ]
 
 dependencies = [
-  "click",
-  "requests"
+  "click ~= 8.0.1",
+  "requests ~= 2.25.1"
 ]
 
 [project.urls]
