@@ -1,25 +1,20 @@
-[project]
+[tool.poetry]
 name = "fanbox-dl"
-version = "1.0.0"
+version = "1.1.0"
 description = "A Fanbox downloader."
+authors = ["Jeremias Pettinen <hi@jeremi.as>"]
+license = "ISC"
 readme = "README.md"
-requires-python = "~=3.8"
-license = {file = "LICENSE"}
-authors = [
-  {name = "Jeremias Pettinen", email = "hi@jeremi.as"}
-]
-
-dependencies = [
-  "click ~= 8.0.1",
-  "requests ~= 2.25.1"
-]
-
-[project.urls]
 repository = "https://github.com/pettinen/fanbox-dl"
 
-[project.scripts]
+[tool.poetry.dependencies]
+click = "^8.0.1"
+python = "^3.8"
+requests = "^2.25.1"
+
+[tool.poetry.scripts]
 fanbox-dl = "fanbox_dl:main"
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

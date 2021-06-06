@@ -1,10 +1,10 @@
 # fanbox-dl
 
-Installation with [`pipenv`](https://pipenv.pypa.io/en/latest/):
+Installation with [Poetry](https://python-poetry.org/):
 ```
 cd fanbox-dl/
-pipenv install
-pipenv run fanbox-dl --help
+poetry install
+poetry run fanbox-dl --help
 ```
 
 Usage (aka stuff you'd know if you had run `fanbox-dl --help`):
