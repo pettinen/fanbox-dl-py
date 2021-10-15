@@ -97,9 +97,15 @@ def main(cookie_file: str, output: str, clobber: bool, creator: str) -> None:
             with open(metadata_path, "w") as f:
                 json.dump(data, f)
 
-        if "images" in data["body"]:
-            for image in data["body"]["images"]:
-                download(image["originalUrl"], dest_dir, clobber, session_id)
-        if "files" in data["body"]:
-            for file in data["body"]["files"]:
-                download(file["url"], dest_dir, clobber, session_id)
+        urls = set()
+        for image in data["body"].get("images", []):
+            urls.add(image["originalUrl"])
+        for image in data["body"].get("imageMap", {}).values():
+            urls.add(image["originalUrl"])
+        for file in data["body"].get("files", []):
+            urls.add(file["url"])
+        for file in data["body"].get("fileMap", {}).values():
+            urls.add(file["url"])
+
+        for url in urls:
+            download(url, dest_dir, clobber, session_id)
